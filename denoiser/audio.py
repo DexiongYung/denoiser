@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 # author: adefossez
 
+import torch
 from collections import namedtuple
 import json
 from pathlib import Path
@@ -14,6 +15,8 @@ import sys
 
 import torchaudio
 from torch.nn import functional as F
+
+from torchaudio.transforms import MelSpectrogram
 
 from .dsp import convert_audio
 
@@ -50,7 +53,7 @@ def find_audio_files(path, exts=[".wav"], progress=True):
 class Audioset:
     def __init__(self, files=None, length=None, stride=None,
                  pad=True, with_path=False, sample_rate=None,
-                 channels=None, convert=False):
+                 channels=None, convert=False, mel_args=None):
         """
         files should be a list [(file, length)]
         """
@@ -62,6 +65,12 @@ class Audioset:
         self.sample_rate = sample_rate
         self.channels = channels
         self.convert = convert
+
+        if mel_args is not None:
+            self.mel_spectrogram = MelSpectrogram(sample_rate=sample_rate, **mel_args)
+        else:
+            self.mel_spectrogram = None
+
         for file, file_length in self.files:
             if length is None:
                 examples = 1
@@ -110,6 +119,11 @@ class Audioset:
                                        f"{target_channels}, but got {sr}")
             if num_frames:
                 out = F.pad(out, (0, num_frames - out.shape[-1]))
+            
+            if self.mel_spectrogram:
+                mel_out = self.mel_spectrogram(out)
+                out = torch.concat([out, mel_out], dim=0)
+
             if self.with_path:
                 return out, file
             else:
