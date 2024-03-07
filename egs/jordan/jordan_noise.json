@@ -1,0 +1,14 @@
+[
+    [
+        "/home/vapi/denoiser/dataset/jordan_test/test-medium.wav",
+        27088
+    ],
+    [
+        "/home/vapi/denoiser/dataset/jordan_test/test_tv.wav",
+        31425
+    ],
+    [
+        "/home/vapi/denoiser/dataset/jordan_test/test-hard.wav",
+        32796
+    ]
+]
