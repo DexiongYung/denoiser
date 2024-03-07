@@ -86,7 +86,8 @@ class Demucs(nn.Module):
                  glu=True,
                  rescale=0.1,
                  floor=1e-3,
-                 sample_rate=16_000):
+                 sample_rate=16_000,
+                 drop_out=0):
 
         super().__init__()
         if resample not in [1, 2, 4]:
@@ -113,17 +114,23 @@ class Demucs(nn.Module):
             encode = []
             encode += [
                 nn.Conv1d(chin, hidden, kernel_size, stride),
+                nn.Dropout(p=drop_out),
                 nn.ReLU(),
-                nn.Conv1d(hidden, hidden * ch_scale, 1), activation,
+                nn.Conv1d(hidden, hidden * ch_scale, 1),
+                nn.Dropout(p=drop_out), 
+                activation,
             ]
             self.encoder.append(nn.Sequential(*encode))
 
             decode = []
             decode += [
-                nn.Conv1d(hidden, ch_scale * hidden, 1), activation,
+                nn.Conv1d(hidden, ch_scale * hidden, 1), 
+                nn.Dropout(p=drop_out),
+                activation,
                 nn.ConvTranspose1d(hidden, chout, kernel_size, stride),
             ]
             if index > 0:
+                decode.append(nn.Dropout(p=drop_out))
                 decode.append(nn.ReLU())
             self.decoder.insert(0, nn.Sequential(*decode))
             chout = hidden

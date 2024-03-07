@@ -86,7 +86,7 @@ class NoisyCleanSet:
             clean = json.load(f)
 
         match_files(noisy, clean, matching)
-        kw = {'length': length, 'stride': stride, 'pad': pad, 'sample_rate': sample_rate}
+        kw = {'length': length, 'stride': stride, 'pad': pad, 'sample_rate': sample_rate, 'convert': True}
         self.clean_set = Audioset(clean, **kw)
         self.noisy_set = Audioset(noisy, **kw)
 

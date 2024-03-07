@@ -92,6 +92,11 @@ class Audioset:
                                           num_frames=num_frames or -1)
             else:
                 out, sr = torchaudio.load(str(file), offset=offset, num_frames=num_frames)
+            
+            # TODO: This is a hack to convert to mono
+            if out.shape[0] == 2:
+                out = out.mean(dim=0, keepdim=True)
+
             target_sr = self.sample_rate or sr
             target_channels = self.channels or out.shape[0]
             if self.convert:
