@@ -1,7 +1,7 @@
 defaults:
-  - _self_
-  # - hydra/job_logging: colorlog
-  # - hydra/hydra_logging: colorlog
+  - dset: debug
+  - hydra/job_logging: colorlog
+  - hydra/hydra_logging: colorlog
 
 # Dataset related
 sample_rate: 16000

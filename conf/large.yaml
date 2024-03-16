@@ -1,5 +1,5 @@
 defaults:
-  - dset: real_small
+  - dset: large
   - hydra/job_logging: colorlog
   - hydra/hydra_logging: colorlog
 
@@ -11,11 +11,11 @@ pad: true   # if training sample is too short, pad it
 mel_args: 
 
 # Dataset Augmentation
-remix: True   # remix noise and clean
-bandmask: 0.3   # drop at most this fraction of freqs in mel scale
-shift: 400    # random shift, number of samples
+remix: false   # remix noise and clean
+bandmask: 0.   # drop at most this fraction of freqs in mel scale
+shift: 0    # random shift, number of samples
 shift_same: false   # shift noise and clean by the same amount
-revecho: 20  # add reverb like augment
+revecho: 0  # add reverb like augment
 
 # Logging and printing, and does not impact training
 num_prints: 5
@@ -57,7 +57,7 @@ stft_loss: True
 stft_sc_factor: .5
 stft_mag_factor: .5
 epochs: 500
-batch_size: 32 # Used to be 64
+batch_size: 24 # Used to be 64
 
 # Models
 model: demucs # either demucs or dwave
@@ -68,7 +68,7 @@ demucs:
   max_hidden: 10000
   causal: true
   glu: true
-  depth: 8
+  depth: 7
   kernel_size: 8
   stride: 4
   normalize: true
@@ -89,7 +89,7 @@ world_size:
 # Hydra config
 hydra:
   run:
-    dir: ./outputs/real_small/depth_8/${hydra.job.override_dirname}
+    dir: ./outputs/large/${hydra.job.override_dirname}
   job:
     config:
       # configuration for the ${hydra.job.override_dirname} runtime variable

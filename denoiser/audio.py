@@ -71,7 +71,7 @@ class Audioset:
         else:
             self.mel_spectrogram = None
 
-        for file, file_length in self.files:
+        for _, file_length in self.files:
             if length is None:
                 examples = 1
             elif file_length < length:

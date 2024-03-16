@@ -1,11 +1,22 @@
 from googleapiclient.discovery import build
 from pytube import YouTube
 import os
+import argparse
 import subprocess
 from pydub import AudioSegment
 import math
 from pydub import AudioSegment
 import os
+
+
+def create_folder_if_not_exists(folder_path):
+    # Check if the folder already exists
+    if not os.path.exists(folder_path):
+        # If it does not exist, create it
+        os.makedirs(folder_path)
+        print(f"The folder '{folder_path}' was created.")
+    else:
+        print(f"The folder '{folder_path}' already exists.")
 
 
 def download_audio_as_wav(youtube_url, output_path):
@@ -21,29 +32,30 @@ def download_audio_as_wav(youtube_url, output_path):
     # Optionally, remove the original downloaded file
     os.remove(audio_file)
 
+class YouTubeCaller:
+    def __init__(self):
+        api_key = 'AIzaSyDQpbjOiMeLXYCvKXrZwTSCXJ5BJcKIWBY'
+        self.youtube = build('youtube', 'v3', developerKey=api_key)
 
-# Set up YouTube Data API
-api_key = 'AIzaSyDQpbjOiMeLXYCvKXrZwTSCXJ5BJcKIWBY'
-youtube = build('youtube', 'v3', developerKey=api_key)
 
-def youtube_search(query, max_results=2000):
-    # Make a search request
-    request = youtube.search().list(
-        q=query,
-        part='id,snippet',
-        type='video',
-        maxResults=max_results
-    )
-    response = request.execute()
+    def get_urls_from_youtube_search(self, query, max_results=2000):
+        # Make a search request
+        request = self.youtube.search().list(
+            q=query,
+            part='id,snippet',
+            type='video',
+            maxResults=max_results
+        )
+        response = request.execute()
 
-    # Extract video links
-    videos = []
-    for item in response['items']:
-        video_id = item['id']['videoId']
-        video_link = f'https://www.youtube.com/watch?v={video_id}'
-        videos.append(video_link)
+        # Extract video links
+        videos = []
+        for item in response['items']:
+            video_id = item['id']['videoId']
+            video_link = f'https://www.youtube.com/watch?v={video_id}'
+            videos.append(video_link)
 
-    return videos
+        return videos
 
 
 def chunk_and_delete_original(file_path, chunk_length_sec=350):
@@ -103,3 +115,28 @@ def delete_long_audio_files(folder_path, max_duration_seconds=38):
                     print(f"Deleted {filename} as it was longer than {max_duration_seconds} seconds.")
             except Exception as e:
                 print(f"Could not process {filename}. Error: {e}")
+
+
+def main():
+    # Create the parser
+    parser = argparse.ArgumentParser(description='Process a query string.')
+
+    # Add the "query" argument
+    # The "type" is set to str, indicating the expected type is a string
+    parser.add_argument('--query', type=str, required=True, help='The query string to process')
+    parser.add_argument('--output_fp', type=str, required=True, help='Output folder path')
+    parser.add_argument('--max_outputs', type=int, required=True, help='Maximum number of query URLs to return')
+    # Parse the command-line arguments
+    args = parser.parse_args()
+
+    create_folder_if_not_exists(args.output_fp)
+
+    yt = YouTubeCaller()
+    urls = yt.get_urls_from_youtube_search(query=args.query, max_results=args.max_outputs)
+
+    for url in urls:
+        download_audio_as_wav(url, args.output_fp)
+
+
+if __name__ == '__main__':
+    main()

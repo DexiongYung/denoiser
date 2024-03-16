@@ -14,7 +14,7 @@ def get_wav_duration_ms(wav_path):
 def generate_wav_info_json(folder_path, noise_path, max_num:int=None):
     wav_info_list = list()
     noise_info_list = list()
-    for i, filename in enumerate(os.listdir(folder_path)):
+    for _, filename in enumerate(os.listdir(folder_path)):
         if len(wav_info_list) == max_num:
             break 
 
