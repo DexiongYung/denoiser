@@ -8,7 +8,7 @@
 
 import logging
 import os
-
+from omegaconf import OmegaConf, open_dict
 import hydra
 
 from denoiser.executor import start_ddp_workers
@@ -47,7 +47,8 @@ def run(args):
     # Demucs requires a specific number of samples to avoid 0 padding during training
     if hasattr(model, 'valid_length'):
         length = model.valid_length(length)
-    kwargs = {"matching": args.dset.matching, "sample_rate": args.sample_rate, "mel_args": args.mel_args}
+    with open_dict(args):
+        kwargs = {"matching": args.dset.matching, "sample_rate": args.sample_rate, "mel_args": args.mel_args, "dynamic_noiser_args": args.get("dynamic_noiser_args", None)}
     # Building datasets and loaders
     tr_dataset = NoisyCleanSet(
         args.dset.train, length=length, stride=stride, pad=args.pad, **kwargs)
@@ -99,7 +100,7 @@ def _main(args):
         run(args)
 
 
-@hydra.main(config_path="conf/real_small.yaml")
+@hydra.main(config_path="conf/large_aug.yaml")
 def main(args):
     try:
         _main(args)

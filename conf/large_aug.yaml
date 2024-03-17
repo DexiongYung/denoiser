@@ -24,6 +24,18 @@ num_workers: 3
 verbose: 0
 show: 0   # just show the model and its size and exit
 
+dynamic_noiser_args :
+  noise_folder_path: /mnt/dylan_disk/YT_audio
+  funcs_w_args:
+    apply_echo: 
+      delay_ms: [50, 500]
+      decay: [0.05, 0.5]
+      repeats: [0, 3] 
+    dynamic_noise_distance_adjustment:
+      min_distance: 2
+      max_distance: 6 
+      segments: [1, 5]
+
 # Checkpointing, by default automatically load last checkpoint
 checkpoint: true
 continue_from: '' # Path the a checkpoint.th file to start from.
@@ -57,7 +69,7 @@ stft_loss: True
 stft_sc_factor: .5
 stft_mag_factor: .5
 epochs: 500
-batch_size: 24 # Used to be 64
+batch_size: 32 # Used to be 64
 
 # Models
 model: demucs # either demucs or dwave
@@ -68,7 +80,7 @@ demucs:
   max_hidden: 10000
   causal: true
   glu: true
-  depth: 7
+  depth: 9
   kernel_size: 8
   stride: 4
   normalize: true
@@ -78,7 +90,7 @@ demucs:
   drop_out: 0.5
 
 # Experiment launching, distributed
-ddp: False
+ddp: True
 ddp_backend: nccl
 rendezvous_file: ./rendezvous
 
@@ -89,7 +101,7 @@ world_size:
 # Hydra config
 hydra:
   run:
-    dir: ./outputs/large/${hydra.job.override_dirname}
+    dir: ./outputs/large_aug/${hydra.job.override_dirname}
   job:
     config:
       # configuration for the ${hydra.job.override_dirname} runtime variable
